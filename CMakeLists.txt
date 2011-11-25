@@ -2,6 +2,12 @@ cmake_minimum_required(VERSION 2.8)
 
 project(SensorKinect)
 
+set(OPENNI_LIB_NAME OpenNI)
+set(JPEG_LIB_NAME   jpeg)
+
+find_package(openni REQUIRED)
+find_package(jpeg   REQUIRED NO_MODULE)
+
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
         set(SENSOR_PLATFORM_LINUX true)
 elseif(WIN32)
@@ -40,7 +46,7 @@ add_library(${XNCORE_LIB_NAME} SHARED ${${XNCORE_LIB_NAME}_SOURCES})
 target_link_libraries(${XNCORE_LIB_NAME} ${OPENNI_LIB_NAME})
 #target_link_libraries(${NIMMOCKNODES_LIB_NAME} ${OPENNI_LIB_NAME})
 
-install(TARGETS ${XNCORE_LIB_NAME}
+install(TARGETS ${XNCORE_LIB_NAME} EXPORT sensorkinect-exports
     LIBRARY DESTINATION lib
     RUNTIME DESTINATION bin
 )
@@ -57,7 +63,7 @@ target_link_libraries(${XNFORMAT_LIB_NAME}
     ${XNCORE_LIB_NAME}
 )
 
-install(TARGETS ${XNFORMAT_LIB_NAME}
+install(TARGETS ${XNFORMAT_LIB_NAME} EXPORT sensorkinect-exports
     LIBRARY DESTINATION lib
     RUNTIME DESTINATION bin
 )
@@ -76,7 +82,7 @@ target_link_libraries(${XNDDK_LIB_NAME}
      ${XNFORMAT_LIB_NAME}
 )
 
-install(TARGETS ${XNDDK_LIB_NAME}
+install(TARGETS ${XNDDK_LIB_NAME} EXPORT sensorkinect-exports
     LIBRARY DESTINATION lib
     RUNTIME DESTINATION bin
 )
@@ -93,7 +99,7 @@ target_link_libraries(${XNDEVICEFILE_LIB_NAME}
        ${XNDDK_LIB_NAME}
 )
 
-install(TARGETS ${XNDEVICEFILE_LIB_NAME}
+install(TARGETS ${XNDEVICEFILE_LIB_NAME} EXPORT sensorkinect-exports
     LIBRARY DESTINATION lib
     RUNTIME DESTINATION bin
 )
@@ -109,7 +115,7 @@ target_link_libraries(${XNDEVICESENSOR_LIB_NAME}
     ${XNFORMAT_LIB_NAME}
        ${XNDDK_LIB_NAME}
 )
-install(TARGETS ${XNDEVICESENSOR_LIB_NAME}
+install(TARGETS ${XNDEVICESENSOR_LIB_NAME} EXPORT sensorkinect-exports
     LIBRARY DESTINATION lib
     RUNTIME DESTINATION bin
 )
@@ -135,7 +141,10 @@ set_target_properties(${XNSENSORSERVER_TARGET_NAME} PROPERTIES
     INSTALL_RPATH "."
 )
 
-install(TARGETS ${XNSENSORSERVER_TARGET_NAME}
+install(TARGETS ${XNSENSORSERVER_TARGET_NAME}  EXPORT sensorkinect-exports
     LIBRARY DESTINATION .
     RUNTIME DESTINATION .
 )
+
+install(FILES  sensorkinect-config.cmake DESTINATION share/sensorkinect)
+install(EXPORT sensorkinect-exports      DESTINATION share/sensorkinect)
