@@ -1,3 +1,7 @@
+#ifndef     MANCTL_CHANGES
+#    define MANCTL_CHANGES 1
+#endif
+
 /*****************************************************************************
 *                                                                            *
 *  PrimeSense Sensor 5.0 Alpha                                               *
@@ -119,8 +123,12 @@ XnStatus XnDepthStream::SetMaxDepth(XnDepthPixel nMaxDepth)
 XnStatus XnDepthStream::ValidateDepthValue(XnDepthPixel nDepth)
 {
 	XnStatus nRetVal = XN_STATUS_OK;
-	
+
+#if MANCTL_CHANGES
+	if (              nDepth > GetDeviceMaxDepth())
+#else
 	if (nDepth < 0 || nDepth > GetDeviceMaxDepth())
+#endif
 	{
 		return XN_STATUS_DEVICE_BAD_PARAM;
 	}

@@ -190,7 +190,7 @@ XnStatus XnSensorClient::ReadInitialState(XnPropertySet* pSet)
 	nRetVal = GetDataPacker()->ReadNextObject(&nType);
 	XN_IS_STATUS_OK(nRetVal);
 
-	if (nType == XN_SENSOR_SERVER_MESSAGE_GENERAL_OP_RESPOND)
+	if ((int)nType == (int)XN_SENSOR_SERVER_MESSAGE_GENERAL_OP_RESPOND)
 	{
 		// check the error code
 		XnUInt32 nDataSize = sizeof(m_LastReply);
