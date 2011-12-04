@@ -16,13 +16,13 @@ elseif(APPLE)
         set(SENSOR_PLATFORM_MAC true)
 endif()
 
-set(           XNCORE_LIB_NAME "XnCore")
-set(            XNDDK_LIB_NAME "XnDDK")
-set(         XNFORMAT_LIB_NAME "XnFormats")
-set(     XNDEVICEFILE_LIB_NAME "XnDeviceFile")
-set(   XNDEVICESENSOR_LIB_NAME "XnDevicesSensorV2")
+set(           XNCORE_LIB_NAME "XnKinectCore")
+set(            XNDDK_LIB_NAME "XnKinectDDK")
+set(         XNFORMAT_LIB_NAME "XnKinectFormats")
+set(     XNDEVICEFILE_LIB_NAME "XnKinectDeviceFile")
+set(   XNDEVICESENSOR_LIB_NAME "XnKinectDevicesSensorV2")
 
-set(XNSENSORSERVER_TARGET_NAME "XnSensorServer")
+set(XNSENSORSERVER_TARGET_NAME "XnKinectSensorServer")
 
 set( OPENNI_INCLUDE_DIR "${OPENNI_BASE_DIR}/Include/")
 set(     OPENNI_LIB_DIR "${OPENNI_BASE_DIR}/Platform/Mac/Bin/Release/")
@@ -39,7 +39,7 @@ include_directories(
 ################################################################################
 # XnCore
 
-file(GLOB ${XNCORE_LIB_NAME}_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/Source/${XNCORE_LIB_NAME}/*.cpp)
+file(GLOB ${XNCORE_LIB_NAME}_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/Source/XnCore/*.cpp)
 
 add_library(${XNCORE_LIB_NAME} SHARED ${${XNCORE_LIB_NAME}_SOURCES})
 
@@ -54,7 +54,7 @@ install(TARGETS ${XNCORE_LIB_NAME} EXPORT sensorkinect-exports
 ################################################################################
 # XnFormats
 
-file(GLOB ${XNFORMAT_LIB_NAME}_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/Source/${XNFORMAT_LIB_NAME}/*.cpp)
+file(GLOB ${XNFORMAT_LIB_NAME}_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/Source/XnFormats/*.cpp)
 
 add_library(${XNFORMAT_LIB_NAME} SHARED ${${XNFORMAT_LIB_NAME}_SOURCES})
 
@@ -71,7 +71,7 @@ install(TARGETS ${XNFORMAT_LIB_NAME} EXPORT sensorkinect-exports
 ################################################################################
 # XnDDK
 
-file(GLOB ${XNDDK_LIB_NAME}_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/Source/${XNDDK_LIB_NAME}/*.cpp)
+file(GLOB ${XNDDK_LIB_NAME}_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/Source/XnDDK/*.cpp)
 
 add_library(${XNDDK_LIB_NAME} SHARED ${${XNDDK_LIB_NAME}_SOURCES})
 
@@ -90,7 +90,7 @@ install(TARGETS ${XNDDK_LIB_NAME} EXPORT sensorkinect-exports
 ################################################################################
 # XnDeviceFile
 
-file(GLOB ${XNDEVICEFILE_LIB_NAME}_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/Source/${XNDEVICEFILE_LIB_NAME}/*.cpp)
+file(GLOB ${XNDEVICEFILE_LIB_NAME}_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/Source/XnDeviceFile/*.cpp)
 
 add_library(${XNDEVICEFILE_LIB_NAME} SHARED ${${XNDEVICEFILE_LIB_NAME}_SOURCES})
 
