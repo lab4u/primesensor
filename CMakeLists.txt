@@ -74,20 +74,13 @@ target_link_libraries(XnKinectSensorServer
 
 ################################################################################
 
-# FIXME: Why is this needed?
-set_target_properties(XnKinectSensorServer PROPERTIES INSTALL_RPATH ".")
-install(TARGETS XnKinectSensorServer EXPORT sensorkinect-exports
-    LIBRARY DESTINATION .
-    RUNTIME DESTINATION .
-)
-
 install(TARGETS
     XnKinectCore
     XnKinectFormats
     XnKinectDDK
     XnKinectDeviceFile
     XnKinectDevicesSensorV2
-#    XnKinectSensorServer
+    XnKinectSensorServer
 
     EXPORT sensorkinect-exports
     LIBRARY DESTINATION lib
