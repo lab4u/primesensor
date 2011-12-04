@@ -74,20 +74,13 @@ target_link_libraries(XnSensorServer
 
 ################################################################################
 
-# FIXME: Is this required?
-set_target_properties(XnSensorServer PROPERTIES INSTALL_RPATH ".")
-install(TARGETS XnSensorServer EXPORT primesensor-exports
-    LIBRARY DESTINATION .
-    RUNTIME DESTINATION .
-)
-
 install(TARGETS
     XnCore
     XnFormats
     XnDDK
     XnDeviceFile
     XnDevicesSensorV2
-#    XnSensorServer
+    XnSensorServer
 
     EXPORT primesensor-exports
     LIBRARY DESTINATION lib
