@@ -20,6 +20,7 @@ add_library(XnCore SHARED ${XnCore_SOURCES})
 target_link_libraries(XnCore
     OpenNI
 )
+set_property(TARGET XnCore PROPERTY COMPILE_DEFINITIONS XN_CORE_EXPORTS)
 
 # XnFormats
 
@@ -29,6 +30,7 @@ target_link_libraries(XnFormats
     jpeg
     XnCore
 )
+set_property(TARGET XnFormats PROPERTY COMPILE_DEFINITIONS XN_FORMATS_EXPORTS)
 
 # XnDDK
 
@@ -40,6 +42,7 @@ target_link_libraries(XnDDK
     jpeg
     XnFormats
 )
+set_property(TARGET XnDDK PROPERTY COMPILE_DEFINITIONS XN_DDK_EXPORTS)
 
 # XnDeviceFile
 
@@ -49,6 +52,7 @@ target_link_libraries(XnDeviceFile
     XnFormats
     XnDDK
 )
+set_property(TARGET XnDeviceFile PROPERTY COMPILE_DEFINITIONS XN_DEVICE_EXPORTS)
 
 # XnDeviceSensorV2
 
@@ -58,6 +62,7 @@ target_link_libraries(XnDevicesSensorV2
     XnFormats
     XnDDK
 )
+set_property(TARGET XnDevicesSensorV2 PROPERTY COMPILE_DEFINITIONS XN_DEVICE_EXPORTS)
 
 # XnSensorServer
 
