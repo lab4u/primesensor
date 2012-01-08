@@ -116,7 +116,6 @@ XnStatus XnDepthStream::SetMaxDepth(XnDepthPixel nMaxDepth)
 XnStatus XnDepthStream::ValidateDepthValue(XnDepthPixel nDepth)
 {
 	if (nDepth > GetDeviceMaxDepth())
-#endif
 	{
 		return XN_STATUS_DEVICE_BAD_PARAM;
 	}
