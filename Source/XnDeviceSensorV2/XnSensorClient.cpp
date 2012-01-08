@@ -887,7 +887,7 @@ XnStatus XnSensorClient::StartServerProcess()
 #endif
 
 	XnChar strProcessName[XN_FILE_MAX_PATH];
-	sprintf(strProcessName, "%s%sXnSensorServer", strServerDir, XN_FILE_DIR_SEP);
+	sprintf(strProcessName, "%s%sXnKinectSensorServer", strServerDir, XN_FILE_DIR_SEP);
 
 #if (XN_PLATFORM == XN_PLATFORM_WIN32)
 	#ifdef _M_X64
