@@ -20,6 +20,7 @@ add_library(XnKinectCore SHARED ${XnKinectCore_SOURCES})
 target_link_libraries(XnKinectCore
     OpenNI
 )
+set_property(TARGET XnKinectCore PROPERTY COMPILE_DEFINITIONS XN_CORE_EXPORTS)
 
 # XnKinectFormats
 
@@ -29,6 +30,7 @@ target_link_libraries(XnKinectFormats
     jpeg
     XnKinectCore
 )
+set_property(TARGET XnKinectFormats PROPERTY COMPILE_DEFINITIONS XN_FORMATS_EXPORTS)
 
 # XnKinectDDK
 
@@ -40,6 +42,7 @@ target_link_libraries(XnKinectDDK
     jpeg
     XnKinectFormats
 )
+set_property(TARGET XnKinectDDK PROPERTY COMPILE_DEFINITIONS XN_DDK_EXPORTS)
 
 # XnKinectDeviceFile
 
@@ -49,6 +52,7 @@ target_link_libraries(XnKinectDeviceFile
     XnKinectFormats
     XnKinectDDK
 )
+set_property(TARGET XnKinectDeviceFile PROPERTY COMPILE_DEFINITIONS XN_DEVICE_EXPORTS)
 
 # XnKinectDeviceSensorV2
 
@@ -58,6 +62,7 @@ target_link_libraries(XnKinectDevicesSensorV2
     XnKinectFormats
     XnKinectDDK
 )
+set_property(TARGET XnKinectDevicesSensorV2 PROPERTY COMPILE_DEFINITIONS XN_DEVICE_EXPORTS)
 
 # XnKinectSensorServer
 
