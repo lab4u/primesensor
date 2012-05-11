@@ -41,7 +41,7 @@
 #define XN_SENSOR_DEFAULT_CLOSE_STREAMS_ON_SHUTDOWN		TRUE
 #define XN_SENSOR_DEFAULT_ENABLE_MULTI_USERS			FALSE
 // --avin mod--
-#define XN_GLOBAL_CONFIG_FILE_NAME						"GlobalDefaultsKinect.ini"
+#define XN_GLOBAL_CONFIG_FILE_NAME						"GlobalDefaultsKin4Win.ini"
 
 // on weak platforms (Arm), we prefer to use BULK
 #if (XN_PLATFORM == XN_PLATFORM_LINUX_ARM || XN_PLATFORM == XN_PLATFORM_ANDROID_ARM)
