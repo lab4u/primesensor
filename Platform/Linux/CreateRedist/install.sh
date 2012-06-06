@@ -27,6 +27,7 @@ Darwin)
 esac
 
 RULES_FILE="55-primesense-usb.rules"
+#--avin mod--
 MODPROBE_BLACKLIST="blacklist-gspca-kinect.conf"
 
 # create file list
@@ -77,6 +78,7 @@ INSTALL_BIN=$rootfs/usr/bin
 INSTALL_ETC=$rootfs/usr/etc/primesense
 INSTALL_RULES=$rootfs/etc/udev/rules.d
 SERVER_LOGS_DIR=$rootfs/var/log/primesense/XnSensorServer
+#--avin mod--
 MODPROBE_CONF_DIR=$rootfs/etc/modprobe.d
 
 # make all calls into OpenNI run in this filesystem
@@ -134,6 +136,7 @@ if [ "$install" = yes ]; then
         printf "installing usb rules..."
         cp Install/$RULES_FILE $INSTALL_RULES
         printf "OK\n"
+		#--avin mod--
         printf "installing modprobe blacklist..."
         cp Install/$MODPROBE_BLACKLIST $MODPROBE_CONF_DIR
         printf "OK\n"
@@ -178,6 +181,7 @@ elif [ "$uninstall" = yes ]; then
         printf "removing usb rules..."
 	    rm -f $INSTALL_RULES/$RULES_FILE
         printf "OK\n"
+		#--avin mod--
         printf "removing modprobe blacklist..."
         rm -f $MODPROBE_CONF_DIR/$MODPROBE_BLACKLIST
         printf "OK\n"

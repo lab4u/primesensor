@@ -24,14 +24,13 @@
 //---------------------------------------------------------------------------
 #include "XnDeviceSensorIO.h"
 #include "XnDeviceSensor.h"
-#include <XnStringsHash.h>
+#include <XnStringsHashT.h>
 
 //---------------------------------------------------------------------------
 // Defines
 //---------------------------------------------------------------------------
 // --avin mod--
-#define XN_SENSOR_VENDOR_ID_KINECT		0x045E
-#define XN_SENSOR_PRODUCT_ID_KINECT		0x02AE
+#define XN_SENSOR_VENDOR_ID			0x045E
 
 //---------------------------------------------------------------------------
 // Enums
@@ -41,6 +40,18 @@ typedef enum
 	XN_FW_USB_INTERFACE_ISO = 0,
 	XN_FW_USB_INTERFACE_BULK = 1,
 } XnFWUsbInterface;
+
+//---------------------------------------------------------------------------
+// Globals
+//---------------------------------------------------------------------------
+// --avin mod--
+XnUInt16 XnSensorIO::ms_supportedProducts[] = 
+{
+	0x02AE,
+	0x02BF,
+};
+
+XnUInt32 XnSensorIO::ms_supportedProductsCount = sizeof(XnSensorIO::ms_supportedProducts) / sizeof(XnSensorIO::ms_supportedProducts[0]);
 
 //---------------------------------------------------------------------------
 // Code
@@ -54,7 +65,10 @@ XnSensorIO::XnSensorIO(XN_SENSOR_HANDLE* pSensorHandle) :
 
 XnSensorIO::~XnSensorIO()
 {
-
+	for (XnUInt32 i = 0; i < m_aRegistrationHandles.GetSize(); ++i)
+	{
+		xnUSBUnregisterFromConnectivityEvents(m_aRegistrationHandles[i]);
+	}
 }
 
 XnStatus XnSensorIO::OpenDevice(const XnChar* strPath)
@@ -128,6 +142,8 @@ XnStatus XnSensorIO::OpenDataEndPoints(XnSensorUsbInterface nInterface, const Xn
 {
 	XnStatus nRetVal = XN_STATUS_OK;
 
+// --avin mod--
+/*
 	// try to set requested interface
 	if (nInterface != XN_SENSOR_USB_INTERFACE_DEFAULT)
 	{
@@ -145,13 +161,12 @@ XnStatus XnSensorIO::OpenDataEndPoints(XnSensorUsbInterface nInterface, const Xn
 			XN_ASSERT(FALSE);
 			XN_LOG_WARNING_RETURN(XN_STATUS_USB_INTERFACE_NOT_SUPPORTED, XN_MASK_DEVICE_IO, "Unknown interface type: %d", nInterface);
 		}
-// --avin mod--
-/*
+
 		xnLogVerbose(XN_MASK_DEVICE_IO, "Setting USB alternative interface to %d...", nAlternativeInterface);
 		nRetVal = xnUSBSetInterface(m_pSensorHandle->USBDevice, 0, nAlternativeInterface);
 		XN_IS_STATUS_OK(nRetVal);
-*/
 	}
+*/
 
 	xnLogVerbose(XN_MASK_DEVICE_IO, "Opening endpoints...");
 
@@ -161,39 +176,24 @@ XnStatus XnSensorIO::OpenDataEndPoints(XnSensorUsbInterface nInterface, const Xn
 	XnBool bNewUSB = TRUE;
 
 	// Depth
-	m_pSensorHandle->DepthConnection.bIsISO = FALSE;
+
+	// --avin mod--
+	m_pSensorHandle->DepthConnection.bIsISO = TRUE;
+	bNewUSB = TRUE;
 
 	xnLogVerbose(XN_MASK_DEVICE_IO, "Opening endpoint 0x81 for depth...");
-	nRetVal = xnUSBOpenEndPoint(m_pSensorHandle->USBDevice, 0x81, XN_USB_EP_BULK, XN_USB_DIRECTION_IN, &m_pSensorHandle->DepthConnection.UsbEp);
+	nRetVal = xnUSBOpenEndPoint(m_pSensorHandle->USBDevice, 0x81, XN_USB_EP_ISOCHRONOUS, XN_USB_DIRECTION_IN, &m_pSensorHandle->DepthConnection.UsbEp);
 	if (nRetVal == XN_STATUS_USB_ENDPOINT_NOT_FOUND)
 	{
-		bNewUSB = FALSE;
-		xnLogVerbose(XN_MASK_DEVICE_IO, "Endpoint 0x81 does not exist. Trying old USB: Opening 0x82 for depth...");
-		nRetVal = xnUSBOpenEndPoint(m_pSensorHandle->USBDevice, 0x82, XN_USB_EP_BULK, XN_USB_DIRECTION_IN, &m_pSensorHandle->DepthConnection.UsbEp);
-		XN_IS_STATUS_OK(nRetVal);
-	}
-	else
-	{
-		if (nRetVal == XN_STATUS_USB_WRONG_ENDPOINT_TYPE)
-		{
-			nRetVal = xnUSBOpenEndPoint(m_pSensorHandle->USBDevice, 0x81, XN_USB_EP_ISOCHRONOUS, XN_USB_DIRECTION_IN, &m_pSensorHandle->DepthConnection.UsbEp);
-
-			m_pSensorHandle->DepthConnection.bIsISO = TRUE;
-		}
-
-		bNewUSB = TRUE;
-
+		nRetVal = xnUSBSetInterface(m_pSensorHandle->USBDevice, 0, 1);
 		XN_IS_STATUS_OK(nRetVal);
 
-		if (m_pSensorHandle->DepthConnection.bIsISO  == TRUE)
-		{
-			xnLogVerbose(XN_MASK_DEVICE_IO, "Depth endpoint is isochronous.");
-		}
-		else
-		{
-			xnLogVerbose(XN_MASK_DEVICE_IO, "Depth endpoint is bulk.");
-		}
+		nRetVal = xnUSBOpenEndPoint(m_pSensorHandle->USBDevice, 0x81, XN_USB_EP_ISOCHRONOUS, XN_USB_DIRECTION_IN, &m_pSensorHandle->DepthConnection.UsbEp);
+		XN_IS_STATUS_OK(nRetVal);
 	}
+
+	xnLogVerbose(XN_MASK_DEVICE_IO, "Depth endpoint is isochronous.");
+
 	m_pSensorHandle->DepthConnection.bIsOpen = TRUE;
 
 	nRetVal = xnUSBGetEndPointMaxPacketSize(m_pSensorHandle->DepthConnection.UsbEp, &m_pSensorHandle->DepthConnection.nMaxPacketSize);
@@ -357,20 +357,19 @@ XnStatus XnSensorIO::CloseDevice()
 	return (XN_STATUS_OK);
 }
 
-XnStatus Enumerate(XnUInt16 nProduct, XnStringsHash& devicesSet)
+XnStatus Enumerate(XnUInt16 nProduct, XnStringsSet& devicesSet)
 {
 	XnStatus nRetVal = XN_STATUS_OK;
 	
 	const XnUSBConnectionString* astrDevicePaths;
 	XnUInt32 nCount;
 
-	// --avin mod--
-	nRetVal = xnUSBEnumerateDevices(XN_SENSOR_VENDOR_ID_KINECT, nProduct, &astrDevicePaths, &nCount);
+	nRetVal = xnUSBEnumerateDevices(XN_SENSOR_VENDOR_ID, nProduct, &astrDevicePaths, &nCount);
 	XN_IS_STATUS_OK(nRetVal);
 
 	for (XnUInt32 i = 0; i < nCount; ++i)
 	{
-		nRetVal = devicesSet.Set(astrDevicePaths[i], NULL);
+		nRetVal = devicesSet.Set(astrDevicePaths[i]);
 		XN_IS_STATUS_OK(nRetVal);
 	}
 
@@ -389,31 +388,35 @@ XnStatus XnSensorIO::EnumerateSensors(XnConnectionString* aConnectionStrings, Xn
 
 // Temporary patch: "Cache" the devices since running USB enum on the MacOSX platform takes several seconds due to problems in libusb!		
 #if (XN_PLATFORM == XN_PLATFORM_MACOSX)	
-	static XnStringsHash devicesSet;
+	static XnStringsSet devicesSet;
 	
 	if (devicesSet.Size() == 0)
 	{
-		// --avin mod--
-		// search for a kinect device
-		nRetVal = Enumerate(XN_SENSOR_PRODUCT_ID_KINECT, devicesSet);
-		XN_IS_STATUS_OK(nRetVal);
+		// search for supported devices
+		for (XnUInt32 i = 0; i < ms_supportedProductsCount; ++i)
+		{
+			nRetVal = Enumerate(ms_supportedProducts[i], devicesSet);
+			XN_IS_STATUS_OK(nRetVal);
+		}
 	}
 #else
-	XnStringsHash devicesSet;
+	XnStringsSet devicesSet;
 
-	// --avin mod--
-	// search for a kinect device
-	nRetVal = Enumerate(XN_SENSOR_PRODUCT_ID_KINECT, devicesSet);
-	XN_IS_STATUS_OK(nRetVal);
+	// search for supported devices
+	for (XnUInt32 i = 0; i < ms_supportedProductsCount; ++i)
+	{
+		nRetVal = Enumerate(ms_supportedProducts[i], devicesSet);
+		XN_IS_STATUS_OK(nRetVal);
+	}
 #endif
 	
 	// now copy back
 	XnUInt32 nCount = 0;
-	for (XnStringsHash::ConstIterator it = devicesSet.begin(); it != devicesSet.end(); ++it, ++nCount)
+	for (XnStringsSet::ConstIterator it = devicesSet.Begin(); it != devicesSet.End(); ++it, ++nCount)
 	{
 		if (nCount < *pnCount)
 		{
-			strcpy(aConnectionStrings[nCount], it.Key());
+			strcpy(aConnectionStrings[nCount], it->Key());
 		}
 	}
 
@@ -456,14 +459,36 @@ XnStatus XnSensorIO::IsSensorLowBandwidth(const XnConnectionString connectionStr
 	return (XN_STATUS_OK);
 }
 
+void XN_CALLBACK_TYPE XnSensorIO::OnConnectivityEvent(XnUSBEventArgs* pArgs, void* pCookie)
+{
+	XnSensorIO* pThis = (XnSensorIO*)pCookie;
+	if (strcmp(pThis->m_strDeviceName, pArgs->strDevicePath) == 0)
+	{
+		pThis->m_pCallbackPtr(pArgs->eventType, const_cast<XnChar*>(pArgs->strDevicePath), pThis->m_pCallbackData);
+	}
+}
+
 XnStatus XnSensorIO::SetCallback(XnUSBEventCallbackFunctionPtr pCallbackPtr, void* pCallbackData)
 {
-	//TODO: Support multiple sensors - this won't work for more than one.
 	XnStatus nRetVal = XN_STATUS_OK;
 	
-	// try to register callback to a 5.0 device
-// --avin mod--
-//	nRetVal = xnUSBSetCallbackHandler(XN_SENSOR_VENDOR_ID, XN_SENSOR_5_0_PRODUCT_ID, NULL, pCallbackPtr, pCallbackData);
+	if (m_aRegistrationHandles.GetSize() == 0)
+	{
+		// register for USB events
+		for (XnUInt32 i = 0; i < ms_supportedProductsCount; ++i)
+		{
+			XnRegistrationHandle hRegistration = NULL;
+			nRetVal = xnUSBRegisterToConnectivityEvents(XN_SENSOR_VENDOR_ID, ms_supportedProducts[i], OnConnectivityEvent, this, &hRegistration);
+			XN_IS_STATUS_OK(nRetVal);
+
+			nRetVal = m_aRegistrationHandles.AddLast(hRegistration);
+			XN_IS_STATUS_OK(nRetVal);
+		}
+	}
+
+	// set callbacks
+	m_pCallbackPtr = pCallbackPtr;
+	m_pCallbackData = pCallbackData;
 
 	return nRetVal;
 }
